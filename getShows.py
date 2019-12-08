@@ -70,3 +70,20 @@ def download_url_list(urls_to_download, downloadPath, fileName):
         myfile=requests.get(n)
         open(downloadPath+fileName+str(count)+'.m4a','wb').write(myfile.content)
         print('file downloaded')
+        
+def download_show(url, showName, downloadPath, fileName):
+    import getShows as gs
+    radioX_url = url
+
+    radioX_showInfo = gs.get_all_shows(radioX_url)
+
+    chris_id = gs.get_show_id(radioX_showInfo, showName)
+    
+    chris_url = radioX_url+chris_id
+
+    show_list = gs.get_show_list(chris_url)
+
+    url_list = gs.list_of_urls(show_list)
+
+    gs.download_url_list(url_list, downloadPath, fileName)
+    
