@@ -1,0 +1,3 @@
+from getShows import get_shows
+
+shows = get_shows("https://www.globalplayer.com/catchup/radiox/uk/")
