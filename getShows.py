@@ -62,18 +62,109 @@ def list_of_urls(list_of_shows):
     url_list = [i["streamUrl"] for i in list_of_shows]
     return(url_list)
     
-def download_url_list(urls_to_download, downloadPath, fileName):
+def download_url_list(urls_to_download, 
+                      downloadPath, 
+                      showName, 
+                      datesOfShows,
+                      albumName,
+                      genre):
     import requests
-    count=0
-    for n in urls_to_download:
-        count = count+1
-        myfile=requests.get(n)
-        open(downloadPath+fileName+str(count)+'.m4a','wb').write(myfile.content)
-        print('file downloaded')
+    import datetime
+    for i in range(len(datesOfShows)):
+        date = datesOfShows[i]
+        print("Downloading "+date)
+        myfile=requests.get(urls_to_download[i])
+        final_url = downloadPath+showName+" "+str(date+'.m4a')
+        day = datetime.datetime.strptime(date,'%Y-%m-%d').strftime('%A')
+        fullDate = date + " " + day
+        titleDate = datetime.datetime.strptime(date, '%Y-%m-%d')
+        titleDate = titleDate.strftime(day + ' %d %b %Y')
+        open(downloadPath+showName+" "+str(date)+'.m4a','wb').write(myfile.content)
+        set_description(final_url, albumName, titleDate, showName, genre, fullDate)
+        print('File Downloaded')
         
-def download_show(url, showName, downloadPath, fileName):
+def get_showDates(listOfShows):
+    import pandas as pd
+    x = pd.DataFrame.from_dict(listOfShows)
+
+    startDates = x.iloc[0:,[5]]
+    startDates = startDates.values.tolist()
+    startDates = [str(i) for i in startDates]
+
+    startDates = [x[:-17] for x in startDates]
+    startDates = [x[2:] for x in startDates]
+    return(startDates)
+    
+def set_description(filename, artist, title, album, genre, sortTitle):
+    from mutagen.mp4 import MP4
+    tags = MP4(filename)
+    tags['\xa9ART'] = artist
+    tags['\xa9nam'] = title
+    tags['\xa9alb'] = album
+    tags['\xa9gen'] = genre
+    tags['sonm'] = sortTitle
+    tags.save(filename)
+    
+
+        
+def download_show(url, showName, downloadPath, albumName, genre):
+    radiox = "https://www.globalplayer.com/catchup/radiox/uk/"
+    gold = "https://www.globalplayer.com/catchup/gold/uk/"
+    classicfm = "https://www.globalplayer.com/catchup/classicfm/uk/"
+    lbcnews = "https://www.globalplayer.com/catchup/lbcnews/uk/"
+    lbc = "https://www.globalplayer.com/catchup/lbc/uk/"
+    capital = "https://www.globalplayer.com/catchup/capital/uk/"
+    capitalxtra = "https://www.globalplayer.com/catchup/capitalxtra/uk/"
+    capitalxtrareloaded = "https://www.globalplayer.com/catchup/capitalxtrareloaded/uk/"
+    heart = "https://www.globalplayer.com/catchup/heart/uk/"
+    heart70s = "https://www.globalplayer.com/catchup/heart70s/uk/"
+    heart80s = "https://www.globalplayer.com/catchup/heart80s/uk/"
+    heart90s = "https://www.globalplayer.com/catchup/heart90s/uk/"
+    heartdance = "https://www.globalplayer.com/catchup/heartdance/uk/"
+    heartxtraxmas = "https://www.globalplayer.com/catchup/heartextra/uk/"
+    smooth = "https://www.globalplayer.com/catchup/smooth/uk/"
+    smoothchill = "https://www.globalplayer.com/catchup/smoothchill/uk/"
+    smoothcountry = "https://www.globalplayer.com/catchup/smoothcountry/uk/"
+
+    
+    if url == 'radiox':
+        radioX_url = radiox
+    elif url == 'gold':
+        radioX_url = gold
+    elif url == 'classicfm':
+        radioX_url = classicfm
+    elif url == 'lbcnews':
+        radioX_url = lbcnews
+    elif url == 'capital':
+        radioX_url = capital
+    elif url == 'capitalxtra':
+        radioX_url = capitalxtra
+    elif url == 'capitalxtrareloaded':
+        radioX_url = capitalxtrareloaded
+    elif url == 'heart':
+        radioX_url = heart
+    elif url == 'heart70s':
+        radioX_url = heart70s
+    elif url == 'heart80s':
+        radioX_url = heart80s
+    elif url == 'heart90s':
+        radioX_url = heart90s
+    elif url == 'heartdance':
+        radioX_url = heartdance
+    elif url == 'heartxtraxmas':
+        radioX_url = heartxtraxmas
+    elif url == 'smooth':
+        radioX_url = smooth
+    elif url == 'smoothchill':
+        radioX_url = smoothchill
+    elif url == 'smoothcountry':
+        radioX_url = smoothcountry
+    elif url == 'lbc':
+        radioX_url = lbc
+    else:
+        radioX_url == "https://www.globalplayer.com/catchup/smoothextra/uk/"
+    
     import getShows as gs
-    radioX_url = url
 
     radioX_showInfo = gs.get_all_shows(radioX_url)
 
@@ -84,6 +175,8 @@ def download_show(url, showName, downloadPath, fileName):
     show_list = gs.get_show_list(chris_url)
 
     url_list = gs.list_of_urls(show_list)
+    
+    dates = gs.get_showDates(show_list)
 
-    gs.download_url_list(url_list, downloadPath, fileName)
+    gs.download_url_list(url_list, downloadPath, showName, dates, albumName, genre)
     
