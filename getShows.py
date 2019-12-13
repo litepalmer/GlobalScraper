@@ -1,62 +1,35 @@
+
+# Gets both the shows operated by a specific radiostation and returns then as a dictionary within a list
+# Also returns the show name as a string to be used by a later function
 def get_show_information(url):
     import requests
     import json
 
-    splash_url = url # The url of the page where all the catchup shows are hosted
+    splash_html = requests.get(url).content.decode() # Grab the raw html of the above URL
 
-    splash_html = requests.get(splash_url) # Grab the raw html of the above URL
-    splash_html = splash_html.content # Remove the html content from the above object into its own variable
-    splash_html = splash_html.decode() # Turn the variable into a string to allow indexing and location of embedded json
-    
-    start_of_json = 'type="application/json">' # String to identify the start of the embedded json object within the html string
-    
-    json_location = splash_html.find(start_of_json) # Numeric location of the start of the json object
-    json_location = json_location+24 
-    removed = splash_html[json_location:] # Remove the start of the html string up to the start of the json object
-    end_json_location = removed.index('}}<') # Numeric location of the end of the json object
-    end_json_location = end_json_location+2
-    final_json = removed[:end_json_location] # Remove end of the html string and only keep the json object
+    station_json = json.loads(splash_html[splash_html.find('type="application/json">')+24:splash_html.index('}}<')+2]) # Remove end of the html string and only keep the json object
 
-    
-    
-    splash_json = json.loads(final_json) 
-    show_info = splash_json['props']['pageProps']['catchupInfo'] # Remove higher levels of the json object that are needed and only keep the level which contains the shows 
-    station_name = splash_json['props']['pageProps']['stationInfo']['brandName']
+    station_shows = station_json['props']['pageProps']['catchupInfo'] # Remove higher levels of the json object that are needed and only keep the level which contains the shows 
+    station_name = station_json['props']['pageProps']['stationInfo']['brandName']
 
-    return(show_info, station_name)
-    
-    
+    return(station_shows, station_name)
+
+ 
 def get_show_id(show_dict, request_show):
-    import pandas as pd
-
-    x = pd.DataFrame.from_dict(show_dict)
-    y = x[x['title'].str.match(request_show)]
-    show_id = y.iloc[0]['id']
-
+    show_id = next(item for item in show_dict if item["title"] == request_show)['id']
     return(show_id)
     
-def get_show_list(url):
+def get_show_list(show_url):
     import requests
-    show_html = requests.get(url)
-
-    show_html_content = show_html.content.decode()
-    start_of_json = 'type="application/json">'
-    json_location = show_html_content.find(start_of_json)
-    json_location = json_location + 24
-
-    removed = show_html_content[json_location:]
-
-    end_json_location = removed.index('}}<')
-    end_json_location = end_json_location+2
-
-    final_json = removed[:end_json_location]
-
     import json
 
-    show_json = json.loads(final_json)
+    show_splash_html = requests.get(show_url).content.decode() # Grab the raw html of the above URL
 
-    show_info = show_json['props']['pageProps']['catchupInfo']['episodes']
-    return(show_info)
+    episode_json = json.loads(show_splash_html[show_splash_html.find('type="application/json">')+24:show_splash_html.index('}}<')+2]) # Remove end of the html string and only keep the json object
+
+    episode_information = episode_json['props']['pageProps']['catchupInfo']['episodes']
+    return(episode_information)
+
 
 def list_of_urls(list_of_shows):
     url_list = [i["streamUrl"] for i in list_of_shows]
@@ -72,37 +45,28 @@ def download_url_list(urls_to_download,
     import os.path
     for i in range(len(datesOfShows)):
         
-        date = datesOfShows[i]
-        print("Downloading "+date)
-
-        day = datetime.datetime.strptime(date,'%Y-%m-%d').strftime('%A')
-        fullDate = date + " " + day
-        titleDate = datetime.datetime.strptime(date, '%Y-%m-%d')
-        titleDate = titleDate.strftime(day + ' %d %b %Y')
+        
+        
+        fullDate = datesOfShows[i] + " " + datetime.datetime.strptime(datesOfShows[i],'%Y-%m-%d').strftime('%A')
+        titleDate = datetime.datetime.strptime(datesOfShows[i], '%Y-%m-%d').strftime(datetime.datetime.strptime(datesOfShows[i],'%Y-%m-%d').strftime('%A') + ' %d %b %Y')
+        
+        
+        
         showPath = downloadPath+fullDate+'.m4a'
         
         if os.path.isfile(showPath):
-            print('file exists')
+            print(titleDate+' exists')
         else:
+            print("Downloading "+titleDate)
             myfile=requests.get(urls_to_download[i])
             open(downloadPath+fullDate+'.m4a','wb').write(myfile.content)
             set_description(showPath, albumName, titleDate, showName, fullDate)
-            print('File Downloaded')
-            
-
-            
+            print('File Downloaded')            
         
 def get_showDates(listOfShows):
     import pandas as pd
-    x = pd.DataFrame.from_dict(listOfShows)
-
-    startDates = x.iloc[0:,[5]]
-    startDates = startDates.values.tolist()
-    startDates = [str(i) for i in startDates]
-
-    startDates = [x[:-17] for x in startDates]
-    startDates = [x[2:] for x in startDates]
-    return(startDates)
+    date_list = [i['startDate'][:-15] for i in listOfShows]
+    return(date_list)
     
 def set_description(filename, artist, title, album, sortTitle):
     from mutagen.mp4 import MP4
@@ -115,9 +79,14 @@ def set_description(filename, artist, title, album, sortTitle):
     tags['aART'] = artist #Album Artist - i.e. Radio Station
     tags['cpil'] = True 
     tags.save(filename)
-    
 
-        
+def listOfShows(station_information):
+    shows = []
+    for i in range(len(station_information)):
+        shows.append((station_information[i]['title']))
+     
+    return(shows)
+           
 def download_show(station_name, showName, downloadPath):
     radiox_url = "https://www.globalplayer.com/catchup/radiox/uk/"
     gold_url = "https://www.globalplayer.com/catchup/gold/uk/"
