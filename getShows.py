@@ -1,71 +1,38 @@
-def get_all_shows(url):
+def get_show_information(url):
     import requests
-    # The url of the page where all the catchup shows are hosted
-    radiox_splash_url = url
-    # Grab the raw html of the above URL
-    radiox_splash_html = requests.get(radiox_splash_url)
-    # Remove the html content from the above object into its own variable
-    radiox_splash_htmlContent = radiox_splash_html.content
-    # Turn the variable into a string to allow indexing and location of embedded json
-    radiox_splash_htmlContent = radiox_splash_htmlContent.decode()
-    # String to identify the start of the embedded json object within the html string
-    start_of_json = 'type="application/json">'
-    # Numeric location of the start of the json object
-    json_location = radiox_splash_htmlContent.find(start_of_json)
-    json_location = json_location+24 
-    # Remove the start of the html string up to the start of the json object
-    removed = radiox_splash_htmlContent[json_location:]
-    # Numeric location of the end of the json object
-    end_json_location = removed.index('}}<')
-    end_json_location = end_json_location+2
-    # Remove end of the html string and only keep the json object
-    final_json = removed[:end_json_location]
     import json
-    # Turn the json object into a dictionary
-    splash_json = json.loads(final_json)
-    # Remove higher levels of the json object that are needed and only keep the 
-    # level which contains the shows 
-    show_info = splash_json['props']['pageProps']['catchupInfo']
-    station_name = splash_json['props']['pageProps']['stationInfo']['brandName']
-    return(show_info)
+
+    splash_url = url # The url of the page where all the catchup shows are hosted
+
+    splash_html = requests.get(splash_url) # Grab the raw html of the above URL
+    splash_html = splash_html.content # Remove the html content from the above object into its own variable
+    splash_html = splash_html.decode() # Turn the variable into a string to allow indexing and location of embedded json
     
-def get_station_name(url):
-    import requests
-# The url of the page where all the catchup shows are hosted
-    radiox_splash_url = url
-# Grab the raw html of the above URL
-    radiox_splash_html = requests.get(radiox_splash_url)
-# Remove the html content from the above object into its own variable
-    radiox_splash_htmlContent = radiox_splash_html.content
-# Turn the variable into a string to allow indexing and location of embedded json
-    radiox_splash_htmlContent = radiox_splash_htmlContent.decode()
-# String to identify the start of the embedded json object within the html string
-    start_of_json = 'type="application/json">'
-# Numeric location of the start of the json object
-    json_location = radiox_splash_htmlContent.find(start_of_json)
+    start_of_json = 'type="application/json">' # String to identify the start of the embedded json object within the html string
+    
+    json_location = splash_html.find(start_of_json) # Numeric location of the start of the json object
     json_location = json_location+24 
-        # Remove the start of the html string up to the start of the json object
-    removed = radiox_splash_htmlContent[json_location:]
-# Numeric location of the end of the json object
-    end_json_location = removed.index('}}<')
+    removed = splash_html[json_location:] # Remove the start of the html string up to the start of the json object
+    end_json_location = removed.index('}}<') # Numeric location of the end of the json object
     end_json_location = end_json_location+2
-# Remove end of the html string and only keep the json object
-    final_json = removed[:end_json_location]
-    import json
-# Turn the json object into a dictionary
-    splash_json = json.loads(final_json)
-# Remove higher levels of the json object that are needed and only keep the 
-# level which contains the shows 
-    station_name = splash_json['props']['pageProps']['stationInfo']['brandName']
-    return(station_name)
+    final_json = removed[:end_json_location] # Remove end of the html string and only keep the json object
+
     
+    
+    splash_json = json.loads(final_json) 
+    show_info = splash_json['props']['pageProps']['catchupInfo'] # Remove higher levels of the json object that are needed and only keep the level which contains the shows 
+    station_name = splash_json['props']['pageProps']['stationInfo']['brandName']
+
+    return(show_info, station_name)
     
     
 def get_show_id(show_dict, request_show):
     import pandas as pd
+
     x = pd.DataFrame.from_dict(show_dict)
     y = x[x['title'].str.match(request_show)]
     show_id = y.iloc[0]['id']
+
     return(show_id)
     
 def get_show_list(url):
@@ -151,73 +118,73 @@ def set_description(filename, artist, title, album, sortTitle):
     
 
         
-def download_show(url, showName, downloadPath):
-    radiox = "https://www.globalplayer.com/catchup/radiox/uk/"
-    gold = "https://www.globalplayer.com/catchup/gold/uk/"
-    classicfm = "https://www.globalplayer.com/catchup/classicfm/uk/"
-    lbcnews = "https://www.globalplayer.com/catchup/lbcnews/uk/"
-    lbc = "https://www.globalplayer.com/catchup/lbc/uk/"
-    capital = "https://www.globalplayer.com/catchup/capital/uk/"
-    capitalxtra = "https://www.globalplayer.com/catchup/capitalxtra/uk/"
-    capitalxtrareloaded = "https://www.globalplayer.com/catchup/capitalxtrareloaded/uk/"
-    heart = "https://www.globalplayer.com/catchup/heart/uk/"
-    heart70s = "https://www.globalplayer.com/catchup/heart70s/uk/"
-    heart80s = "https://www.globalplayer.com/catchup/heart80s/uk/"
-    heart90s = "https://www.globalplayer.com/catchup/heart90s/uk/"
-    heartdance = "https://www.globalplayer.com/catchup/heartdance/uk/"
-    heartxtraxmas = "https://www.globalplayer.com/catchup/heartextra/uk/"
-    smooth = "https://www.globalplayer.com/catchup/smooth/uk/"
-    smoothchill = "https://www.globalplayer.com/catchup/smoothchill/uk/"
-    smoothcountry = "https://www.globalplayer.com/catchup/smoothcountry/uk/"
+def download_show(station_name, showName, downloadPath):
+    radiox_url = "https://www.globalplayer.com/catchup/radiox/uk/"
+    gold_url = "https://www.globalplayer.com/catchup/gold/uk/"
+    classicfm_url = "https://www.globalplayer.com/catchup/classicfm/uk/"
+    lbcnews_url = "https://www.globalplayer.com/catchup/lbcnews/uk/"
+    lbc_url = "https://www.globalplayer.com/catchup/lbc/uk/"
+    capital_url = "https://www.globalplayer.com/catchup/capital/uk/"
+    capitalxtra_url = "https://www.globalplayer.com/catchup/capitalxtra/uk/"
+    capitalxtrareloaded_url = "https://www.globalplayer.com/catchup/capitalxtrareloaded/uk/"
+    heart_url = "https://www.globalplayer.com/catchup/heart/uk/"
+    heart70s_url = "https://www.globalplayer.com/catchup/heart70s/uk/"
+    heart80s_url = "https://www.globalplayer.com/catchup/heart80s/uk/"
+    heart90s_url = "https://www.globalplayer.com/catchup/heart90s/uk/"
+    heartdance_url = "https://www.globalplayer.com/catchup/heartdance/uk/"
+    heartxtraxmas_url = "https://www.globalplayer.com/catchup/heartextra/uk/"
+    smooth_url = "https://www.globalplayer.com/catchup/smooth/uk/"
+    smoothchill_url = "https://www.globalplayer.com/catchup/smoothchill/uk/"
+    smoothcountry_url = "https://www.globalplayer.com/catchup/smoothcountry/uk/"
+    smoothextra_url = "https://www.globalplayer.com/catchup/smoothextra/uk/"
 
     
-    if url == 'radiox':
-        radioX_url = radiox
-    elif url == 'gold':
-        radioX_url = gold
-    elif url == 'classicfm':
-        radioX_url = classicfm
-    elif url == 'lbcnews':
-        radioX_url = lbcnews
-    elif url == 'capital':
-        radioX_url = capital
-    elif url == 'capitalxtra':
-        radioX_url = capitalxtra
-    elif url == 'capitalxtrareloaded':
-        radioX_url = capitalxtrareloaded
-    elif url == 'heart':
-        radioX_url = heart
-    elif url == 'heart70s':
-        radioX_url = heart70s
-    elif url == 'heart80s':
-        radioX_url = heart80s
-    elif url == 'heart90s':
-        radioX_url = heart90s
-    elif url == 'heartdance':
-        radioX_url = heartdance
-    elif url == 'heartxtraxmas':
-        radioX_url = heartxtraxmas
-    elif url == 'smooth':
-        radioX_url = smooth
-    elif url == 'smoothchill':
-        radioX_url = smoothchill
-    elif url == 'smoothcountry':
-        radioX_url = smoothcountry
-    elif url == 'lbc':
-        radioX_url = lbc
+    if station_name == 'radiox':
+        station_url = radiox_url
+    elif station_name == 'gold':
+        station_url = gold_url
+    elif station_name == 'classicfm':
+        station_url = classicfm_url
+    elif station_name == 'lbcnews':
+        station_url = lbcnews_url
+    elif station_name == 'capital':
+        station_url = capital_url
+    elif station_name == 'capitalxtra':
+        station_url = capitalxtra_url
+    elif station_name == 'capitalxtrareloaded':
+        station_url = capitalxtrareloaded_url
+    elif station_name == 'heart':
+        station_url = heart_url
+    elif station_name == 'heart70s':
+        station_url = heart70s_url
+    elif station_name == 'heart80s':
+        station_url = heart80s_url
+    elif station_name == 'heart90s':
+        station_url = heart90s_url
+    elif station_name == 'heartdance':
+        station_url = heartdance_url
+    elif station_name == 'heartxtraxmas':
+        station_url = heartxtraxmas_url
+    elif station_name == 'smooth':
+        station_url = smooth_url
+    elif station_name == 'smoothchill':
+        station_url = smoothchill_url
+    elif station_name == 'smoothcountry':
+        station_url = smoothcountry_url
+    elif station_name == 'lbc':
+        station_url = lbc_url
     else:
-        radioX_url == "https://www.globalplayer.com/catchup/smoothextra/uk/"
+        station_url == smoothextra_url
     
     import getShows as gs
 
-    radioX_showInfo = gs.get_all_shows(radioX_url)
-    station_name = gs.get_station_name(radioX_url)
+    station_showInfo, station_name = gs.get_show_information(station_url)
 
-    chris_id = gs.get_show_id(radioX_showInfo, showName)
+    show_id = gs.get_show_id(station_showInfo, showName)
     
-    chris_url = radioX_url+chris_id
+    show_url = station_url+show_id
 
-    show_list = gs.get_show_list(chris_url)
+    show_list = gs.get_show_list(show_url)
 
     url_list = gs.list_of_urls(show_list)
     
