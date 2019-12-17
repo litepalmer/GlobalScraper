@@ -49,14 +49,14 @@ def download_url_list(urls_to_download,
 
         fullDate = datesOfShows[i] + " " + datetime.datetime.strptime(datesOfShows[i],'%Y-%m-%d').strftime('%A')
         titleDate = datetime.datetime.strptime(datesOfShows[i], '%Y-%m-%d').strftime(datetime.datetime.strptime(datesOfShows[i],'%Y-%m-%d').strftime('%A') + ' %d %b %Y')
-        showPath = "/Volumes/Public/Media/Radio/Radio X/Toby Tarrant/"+fullDate+'.m4a'
+        showPath = downloadPath+fullDate+'.m4a'
         
         if os.path.isfile(showPath):
             print('file exists')
         else:
             print("Downloading "+fullDate)
             myfile=requests.get(urls_to_download[i])
-            open("/Volumes/Public/Media/Radio/Radio X/Toby Tarrant/"+fullDate+'.m4a','wb').write(myfile.content)
+            open(downloadPath+fullDate+'.m4a','wb').write(myfile.content)
             set_description(showPath, albumName, titleDate, showName, fullDate)
             print('File Downloaded')             
         
