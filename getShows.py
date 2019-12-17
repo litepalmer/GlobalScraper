@@ -44,27 +44,23 @@ def download_url_list(urls_to_download,
     import datetime
     import os.path
     for i in range(len(datesOfShows)):
-        
-        
-        
+
+    
+
         fullDate = datesOfShows[i] + " " + datetime.datetime.strptime(datesOfShows[i],'%Y-%m-%d').strftime('%A')
         titleDate = datetime.datetime.strptime(datesOfShows[i], '%Y-%m-%d').strftime(datetime.datetime.strptime(datesOfShows[i],'%Y-%m-%d').strftime('%A') + ' %d %b %Y')
-        
-        
-        
-        showPath = downloadPath+fullDate+'.m4a'
+        showPath = "/Volumes/Public/Media/Radio/Radio X/Toby Tarrant/"+fullDate+'.m4a'
         
         if os.path.isfile(showPath):
-            print(titleDate+' exists')
+            print('file exists')
         else:
-            print("Downloading "+titleDate)
+            print("Downloading "+fullDate)
             myfile=requests.get(urls_to_download[i])
-            open(downloadPath+fullDate+'.m4a','wb').write(myfile.content)
+            open("/Volumes/Public/Media/Radio/Radio X/Toby Tarrant/"+fullDate+'.m4a','wb').write(myfile.content)
             set_description(showPath, albumName, titleDate, showName, fullDate)
-            print('File Downloaded')            
+            print('File Downloaded')             
         
 def get_showDates(listOfShows):
-    import pandas as pd
     date_list = [i['startDate'][:-15] for i in listOfShows]
     return(date_list)
     
@@ -88,62 +84,28 @@ def listOfShows(station_information):
     return(shows)
            
 def download_show(station_name, showName, downloadPath):
-    radiox_url = "https://www.globalplayer.com/catchup/radiox/uk/"
-    gold_url = "https://www.globalplayer.com/catchup/gold/uk/"
-    classicfm_url = "https://www.globalplayer.com/catchup/classicfm/uk/"
-    lbcnews_url = "https://www.globalplayer.com/catchup/lbcnews/uk/"
-    lbc_url = "https://www.globalplayer.com/catchup/lbc/uk/"
-    capital_url = "https://www.globalplayer.com/catchup/capital/uk/"
-    capitalxtra_url = "https://www.globalplayer.com/catchup/capitalxtra/uk/"
-    capitalxtrareloaded_url = "https://www.globalplayer.com/catchup/capitalxtrareloaded/uk/"
-    heart_url = "https://www.globalplayer.com/catchup/heart/uk/"
-    heart70s_url = "https://www.globalplayer.com/catchup/heart70s/uk/"
-    heart80s_url = "https://www.globalplayer.com/catchup/heart80s/uk/"
-    heart90s_url = "https://www.globalplayer.com/catchup/heart90s/uk/"
-    heartdance_url = "https://www.globalplayer.com/catchup/heartdance/uk/"
-    heartxtraxmas_url = "https://www.globalplayer.com/catchup/heartextra/uk/"
-    smooth_url = "https://www.globalplayer.com/catchup/smooth/uk/"
-    smoothchill_url = "https://www.globalplayer.com/catchup/smoothchill/uk/"
-    smoothcountry_url = "https://www.globalplayer.com/catchup/smoothcountry/uk/"
-    smoothextra_url = "https://www.globalplayer.com/catchup/smoothextra/uk/"
-
+    stations = {
+        "radiox" : "https://www.globalplayer.com/catchup/radiox/uk/",
+        "gold" : "https://www.globalplayer.com/catchup/gold/uk/",
+        "classicfm" : "https://www.globalplayer.com/catchup/classicfm/uk/",
+        "lbcnews" : "https://www.globalplayer.com/catchup/lbcnews/uk/",
+        "lbc" : "https://www.globalplayer.com/catchup/lbc/uk/",
+        "capital" : "https://www.globalplayer.com/catchup/capital/uk/",
+        "capitalxtra" : "https://www.globalplayer.com/catchup/capitalxtra/uk/",
+        "capitalxtrareloaded" : "https://www.globalplayer.com/catchup/capitalxtrareloaded/uk/",
+        "heart" : "https://www.globalplayer.com/catchup/heart/uk/",
+        "heart70s" : "https://www.globalplayer.com/catchup/heart70s/uk/",
+        "heart80s" : "https://www.globalplayer.com/catchup/heart80s/uk/",
+        "heart90s" : "https://www.globalplayer.com/catchup/heart90s/uk/",
+        "heartdance" : "https://www.globalplayer.com/catchup/heartdance/uk/",
+        "heartxtraxmas" : "https://www.globalplayer.com/catchup/heartextra/uk/",
+        "smooth" : "https://www.globalplayer.com/catchup/smooth/uk/",
+        "smoothchill" : "https://www.globalplayer.com/catchup/smoothchill/uk/",
+        "smoothcountry" : "https://www.globalplayer.com/catchup/smoothcountry/uk/",
+        "smoothextra" : "https://www.globalplayer.com/catchup/smoothextra/uk/"
+    }
     
-    if station_name == 'radiox':
-        station_url = radiox_url
-    elif station_name == 'gold':
-        station_url = gold_url
-    elif station_name == 'classicfm':
-        station_url = classicfm_url
-    elif station_name == 'lbcnews':
-        station_url = lbcnews_url
-    elif station_name == 'capital':
-        station_url = capital_url
-    elif station_name == 'capitalxtra':
-        station_url = capitalxtra_url
-    elif station_name == 'capitalxtrareloaded':
-        station_url = capitalxtrareloaded_url
-    elif station_name == 'heart':
-        station_url = heart_url
-    elif station_name == 'heart70s':
-        station_url = heart70s_url
-    elif station_name == 'heart80s':
-        station_url = heart80s_url
-    elif station_name == 'heart90s':
-        station_url = heart90s_url
-    elif station_name == 'heartdance':
-        station_url = heartdance_url
-    elif station_name == 'heartxtraxmas':
-        station_url = heartxtraxmas_url
-    elif station_name == 'smooth':
-        station_url = smooth_url
-    elif station_name == 'smoothchill':
-        station_url = smoothchill_url
-    elif station_name == 'smoothcountry':
-        station_url = smoothcountry_url
-    elif station_name == 'lbc':
-        station_url = lbc_url
-    else:
-        station_url == smoothextra_url
+    station_url = stations[station_name]
     
     import getShows as gs
 
